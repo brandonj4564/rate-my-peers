@@ -34,7 +34,7 @@ export default function HomePage() {
     'This is nowhere near enough to make up for what happened to me',
     'Cathartic, really',
     'Wait, are you guys recording me',
-    'Now we can all know who has been naughty or nice',
+    "If I can't win, no one can",
     'Now I can get away with hiring less people',
     'I had no idea people thought so low of me',
   ];
@@ -62,7 +62,7 @@ export default function HomePage() {
             radius={10}
           >
             <Flex h="95%" justify="center" align="flex-end">
-              <Paper radius={5} w="80%" bg="white" p="0.5rem 1rem">
+              <Paper radius={5} w="80%" bg="white" p="0.5rem 1rem" opacity={0.8}>
                 <Text c="black" fz={20} fw={600}>
                   {name}
                 </Text>
