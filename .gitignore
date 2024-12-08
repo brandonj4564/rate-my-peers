@@ -130,3 +130,7 @@ dist
 .pnp.*
 
 .DS_Store
+
+# pycache and sqlite files
+**/__pycache__/
+backend/flaskk/instance/
