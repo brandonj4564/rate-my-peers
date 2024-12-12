@@ -18,6 +18,7 @@ dropfriendshiptable = '''
 user_table = '''
     CREATE TABLE IF NOT EXISTS user(
         u_userID VARCHAR(255) NOT NULL,
+        u_name VARCHAR(255) NOT NULL,
         u_skoolName VARCHAR(255) NOT NULL,
         u_yearAttend INT NOT NULL,
         u_major VARCHAR(255) NOT NULL,
@@ -35,7 +36,9 @@ dropusertable = '''
 rating_table = '''
     CREATE TABLE IF NOT EXISTS rating(
         r_ratingID VARCHAR(255) NOT NULL,
-        r_ratedUserID VARCHAR(255) NOT NULL,
+        
+        
+        VARCHAR(255) NOT NULL,
         r_raterUserID VARCHAR(255) NOT NULL,
         r_teamWork INT DEFAULT 0,
         r_hygeine INT DEFAULT 0,

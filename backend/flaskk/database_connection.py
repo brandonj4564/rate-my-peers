@@ -25,10 +25,23 @@ def closeConnection(connection):
         print(e)
 
 
-@app.route("/profile", methods=["GET", "POST"])
+@app.route("/profile", methods=["GET", "POST"]) # need to add check to see if user is logged in before try to post<----------------------------------------
 def profile():
     try: 
             if request.method == "POST":
+                
+                
+                
+                required_fields = [#we could remove this if the front end deals with the checking if all data has been entered
+                'r_ratedUserID', 'r_teamWork', 'r_hygeine', 'r_personality', 'r_temperament', 
+                'r_dependability', 'r_creativity', 'r_leadership', 'r_workEthic', 'r_comment'
+                ]
+            
+                for field in required_fields:
+                    if field not in request.form:
+                        return jsonify({"success": False, "message": f"Missing required field: {field}"}), 400
+
+                
     
                 rater_id = current_user.id  #NOT SURE IF THIS WILL GET USE ID <--------------------
 
@@ -54,7 +67,7 @@ def profile():
                 cursor = conn.cursor()
                 #inserts review
                 query = '''
-                    INSERT INTO rating (
+                    INSERT INTO rating_table (
                         r_ratedUserID, r_raterUserID, r_teamWork, r_hygeine, r_personality, r_temperament,  
                         r_dependability, r_creativity, r_leadership, r_workEthic, r_comment
                     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -83,18 +96,78 @@ def profile():
                 #gets stats profile stats
 
                 query = '''
-                    SELECT r_teamWork, r_hygeine, r_personality, r_temperament, r_dependability, r_creativity, r_leadership, r_workEthic
-                    FROM rating
+                    SELECT AVG(r_teamWork), AVG(r_hygeine), AVG(r_personality), AVG(r_temperament), AVG(r_dependability), AVG(r_creativity), AVG(r_leadership), AVG(r_workEthic)
+                    FROM rating_table
                     WHERE r_ratedUserID = ?
                 '''
                 
                 cursor.execute(query, (rated_user_id,))
 
                 
-                stats = cursor.fetchall()  
+                stats = cursor.fetchone()  #AVG SCORE FOR THE USER IN EACH CATEGORY
+                
+                #--not extracting rater id as we prob dont want to display this (anonymous)
+                query_post = '''
+                           
+                SELECT r_teamWork, r_hygeine, r_personality, r_temperament, r_dependability, r_creativity, r_leadership, r_workEthic,  r_comment
+                FROM rating_table
+                WHERE r_ratedUserID = ?
+
+                '''
+                cursor.execute(query_post, (rated_user_id,))
+                
+                posts = cursor.fetchall()# touples for posts
+                
+                
+                profile_query = '''
+                    SELECT u_name,u_skoolName, u_yearAttend, u_major,u_degree 
+                    FROM user_table
+                    WHERE u_userID = ?
+
+                '''
+                
+                cursor.execute(profile_query, (rated_user_id,))
+                
+                profile_info = cursor.fetchone()# profile info to display below the over score 
+                
+                user_data = { #user stats has avg of every category for brandsons use in stat radar and also for caluclating the over score number on the left side of screen
+                    "user_stats": {
+                        "team_work": stats[0],
+                        "hygiene": stats[1],
+                        "personality": stats[2],
+                        "temperament": stats[3],
+                        "dependability": stats[4],
+                        "creativity": stats[5],
+                        "leadership": stats[6],
+                        "work_ethic": stats[7]
+                    },
+                    "profile_info": { #profile info 
+                        "u_name" : profile_info[0],
+                        "u_skoolName" : profile_info[1],
+                        "u_yearAttend" : profile_info[2],
+                        "u_major" : profile_info[3],
+                        "u_degree" : profile_info[4]
+                    },
+                    "user_posts": [ #puting posts into a disctionary to show on screen. wont show name unless i get outvoted xD
+                        {
+                            'team_work': row[0],
+                            'hygiene': row[1],
+                            'personality': row[2],
+                            'temperament': row[3],
+                            'dependability': row[4],
+                            'creativity': row[5],
+                            'leadership': row[6],
+                            'work_ethic': row[7],
+                            'comment': row[8]
+                        } for row in posts
+                    ]
+            }
+                
+                
+                
                 closeConnection(conn)
                 
-                return jsonify({"success": True, "data": stats}), 200
+                return jsonify({"success": True, "data": user_data}), 200 #sending it to front end
 
     
     except Exception as e:
