@@ -95,6 +95,7 @@ def register():
     
     except:
         return jsonify({"success": False, "message": "An error occurred during registration."}), 500
+    
 
 
 @app.route("/login", methods=["GET", "POST"])

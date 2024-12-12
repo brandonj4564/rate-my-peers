@@ -41,6 +41,7 @@ rating_table = '''
         r_hygeine INT DEFAULT 0,
         r_personality INT DEFAULT 0,
         r_temperament INT DEFAULT 0,
+        r_dependability INT DEFAULT 0, 
         r_creativity INT DEFAULT 0,
         r_leadership INT DEFAULT 0,
         r_workEthic INT DEFAULT 0,
