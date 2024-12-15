@@ -37,7 +37,7 @@ rating_table = '''
     CREATE TABLE IF NOT EXISTS rating(
         r_ratingID VARCHAR(255) NOT NULL,
         
-        
+        r_ratedUserID VARCHAR(255) NOT NULL,
         r_raterUserID VARCHAR(255) NOT NULL,
         r_teamWork INT DEFAULT 0,
         r_hygeine INT DEFAULT 0,
