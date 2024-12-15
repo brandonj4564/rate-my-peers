@@ -20,8 +20,8 @@ import {
   useMantineTheme,
 } from '@mantine/core';
 import HomeSearch from '@/components/HomeSearch';
-import { ColorSchemeToggle } from '../components/ColorSchemeToggle/ColorSchemeToggle';
-import { Welcome } from '../components/Welcome/Welcome';
+import { ColorSchemeToggle } from '../../components/ColorSchemeToggle/ColorSchemeToggle';
+import { Welcome } from '../../components/Welcome/Welcome';
 
 export default function HomePage() {
   const theme = useMantineTheme();
