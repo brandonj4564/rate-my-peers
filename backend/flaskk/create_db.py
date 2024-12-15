@@ -77,6 +77,7 @@ def databaseReset():
         dropAllTables(connection)
         createAllTables(connection)
     conn.closeConnection(connection)
+    print("Database created and reseted successfully!")
 
 if __name__ == '__main__':
     databaseReset()

@@ -6,15 +6,17 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user
+import sqlite3
 from sqlite3 import Error
 import traceback
+import uuid
 
 app = Flask(__name__)
 CORS(app)
 
 app.config["SECRET_KEY"] = "thisISaSecrETkeY"
 
-DATABASE = "peers.sqlite"
+DATABASE = "peers.sqlite3"
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -78,10 +80,15 @@ def register():
             return jsonify({"success": False, "message": "Email is already in use!"}), 400
 
         password = generate_password_hash(data.get("password"))
+
+        # create a unique ID
+        userID = str(uuid.uuid4())
+
+        # Needs a value for u_degree
         cursor.execute('''
-            INSERT INTO user (name, school, year, major, email, password)
-            VALUES (?, ?, ?, ?, ?, ?)
-        ''', (data.get("name"), data.get("school"), data.get("year"),
+            INSERT INTO user (u_userID, u_name, u_skoolName, u_yearAttend, u_major, u_degree, u_email, u_password)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        ''', (userID, data.get("name"), data.get("school"), data.get("year"),
               data.get("major"), data.get("email"), password))
         conn.commit()
         conn.close()
