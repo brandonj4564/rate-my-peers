@@ -41,12 +41,12 @@ export default function HomePage() {
 
   const carouselNames = [
     'Anonymous',
-    'Charles Watkins',
+    'Calvin Holland',
     'Eric Pohlman',
     'Tyler Quon',
-    'Emily Webster',
-    'Brigham Young',
-    'Joseph Myer',
+    'Emily DesCarter',
+    'Joseph Smith',
+    'Justin Myer',
     'Matthew Clark',
     'Olivia Turner',
   ];

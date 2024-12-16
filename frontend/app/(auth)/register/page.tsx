@@ -16,20 +16,21 @@ import {
   Title,
   useMantineTheme,
 } from '@mantine/core';
-import { useForm } from '@mantine/form';
 import LargeLogo from '@/components/LargeLogo';
+import { OnboardingFormProvider, useRegisterForm } from '../OnboardingContext';
 
 const RegisterForm = () => {
   const router = useRouter();
   const theme = useMantineTheme();
 
-  const form = useForm({
+  const form = useRegisterForm({
     mode: 'uncontrolled',
     initialValues: { email: '', password: '', confirmPassword: '' },
 
     // functions will be used to validate values at corresponding key
     validate: {
       email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Invalid email'),
+      password: (value) => (value.length > 0 ? null : 'Invalid password'),
       confirmPassword: (value, values) =>
         value !== values.password ? 'Passwords did not match' : null,
     },
@@ -49,44 +50,46 @@ const RegisterForm = () => {
           Sign up now to join the network where every click shapes reputations, and yours is next
         </Text>
       </Stack>
-      <form onSubmit={form.onSubmit((values) => console.log(values))}>
-        <Stack gap="md">
-          <TextInput
-            label="Email"
-            variant="filled"
-            size="md"
-            labelProps={{ m: '0.5rem 0' }}
-            type="email"
-            placeholder="your@email.com"
-            key={form.key('email')}
-            withAsterisk
-            {...form.getInputProps('email')}
-          />
-          <PasswordInput
-            label="Password"
-            placeholder="Password"
-            variant="filled"
-            size="md"
-            labelProps={{ m: '0.5rem 0' }}
-            key={form.key('password')}
-            withAsterisk
-            {...form.getInputProps('password')}
-          />
-          <PasswordInput
-            label="Confirm password"
-            variant="filled"
-            size="md"
-            labelProps={{ m: '0.5rem 0' }}
-            placeholder="Confirm password"
-            key={form.key('confirmPassword')}
-            withAsterisk
-            {...form.getInputProps('confirmPassword')}
-          />
-          <Button size="md" m="1rem 0" type="submit" w="100%" mt="3rem">
-            Next
-          </Button>
-        </Stack>
-      </form>
+      <OnboardingFormProvider form={form}>
+        <form onSubmit={form.onSubmit(() => router.push('/onboarding'))}>
+          <Stack gap="md">
+            <TextInput
+              label="Email"
+              variant="filled"
+              size="md"
+              labelProps={{ m: '0.5rem 0' }}
+              type="email"
+              placeholder="your@email.com"
+              key={form.key('email')}
+              withAsterisk
+              {...form.getInputProps('email')}
+            />
+            <PasswordInput
+              label="Password"
+              placeholder="Password"
+              variant="filled"
+              size="md"
+              labelProps={{ m: '0.5rem 0' }}
+              key={form.key('password')}
+              withAsterisk
+              {...form.getInputProps('password')}
+            />
+            <PasswordInput
+              label="Confirm password"
+              variant="filled"
+              size="md"
+              labelProps={{ m: '0.5rem 0' }}
+              placeholder="Confirm password"
+              key={form.key('confirmPassword')}
+              withAsterisk
+              {...form.getInputProps('confirmPassword')}
+            />
+            <Button size="md" m="1rem 0" type="submit" w="100%" mt="3rem">
+              Next
+            </Button>
+          </Stack>
+        </form>
+      </OnboardingFormProvider>
       <Group>
         <Text>Already have an account?</Text>
         <Text
