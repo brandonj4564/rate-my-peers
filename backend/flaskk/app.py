@@ -275,6 +275,25 @@ def profile():
         traceback.print_exc()  
         return jsonify({"success": False, "message": f"An error occurred: {str(e)}"}), 500
 
+@app.route("/schools", methods=["GET"])
+def schools():
+    # Connect to the database
+    conn = sqlite3.connect("peers.sqlite3")
+    cursor = conn.cursor()
+
+    try:
+        # Query to get all school names from the user table
+        cursor.execute("SELECT DISTINCT u_skoolName FROM user")
+        result = cursor.fetchall()
+        
+        # Extract schools from the result and flatten the list
+        schools_list = [row[0] for row in result]
+
+        return jsonify(schools_list), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        conn.close()
 
 if __name__ == "__main__":
     app.run(debug=True)
