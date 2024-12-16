@@ -1,18 +1,31 @@
+'use client';
+
 import '@mantine/core/styles.css';
 
 import React from 'react';
 import { ColorSchemeScript, MantineProvider } from '@mantine/core';
-import Header from '@/components/Header';
 import { theme } from '../../theme';
 
 import '@mantine/carousel/styles.css';
 
-export const metadata = {
-  title: 'Rate My Peers',
-  // description: 'I am using Mantine with Next.js!',
-};
+import { useForm } from '@mantine/form';
+import { RegisterFormProvider } from './OnboardingContext';
 
 export default function RootLayout({ children }: { children: any }) {
+  const form = useForm({
+    initialValues: {
+      email: '',
+      password: '',
+      confirmPassword: '',
+    },
+    validate: {
+      email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Invalid email'),
+      password: (value) => (value.length >= 6 ? null : 'Password must be at least 6 characters'),
+      confirmPassword: (value, values) =>
+        value === values.password ? null : 'Passwords do not match',
+    },
+  });
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -24,7 +37,9 @@ export default function RootLayout({ children }: { children: any }) {
         />
       </head>
       <body>
-        <MantineProvider theme={theme}>{children}</MantineProvider>
+        <MantineProvider theme={theme}>
+          <RegisterFormProvider form={form}>{children}</RegisterFormProvider>
+        </MantineProvider>
       </body>
     </html>
   );

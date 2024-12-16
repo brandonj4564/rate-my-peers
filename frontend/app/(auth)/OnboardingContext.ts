@@ -7,14 +7,5 @@ interface RegisterFormValues {
   confirmPassword: string;
 }
 
-interface OnboardingFormValues {
-  email: string;
-  password: string;
-  confirmPassword: string;
-}
-
 export const [RegisterFormProvider, useRegisterFormContext, useRegisterForm] =
   createFormContext<RegisterFormValues>();
-
-export const [OnboardingFormProvider, useOnboardingFormContext, useOnboardingForm] =
-  createFormContext<OnboardingFormValues>();
