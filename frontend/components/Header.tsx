@@ -3,21 +3,60 @@
 import { useRouter } from 'next/navigation';
 import { Button, Group, Paper } from '@mantine/core';
 import SmallLogo from './SmallLogo';
+import { useAuth } from './authContext';
 
 export default function Header() {
   const router = useRouter();
+  const { isAuthenticated, logout } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      const response = await fetch('http://127.0.0.1:5000/logout', {
+        method: 'GET',
+        credentials: 'include', // Include session cookies 
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Logout failed');
+      }
+
+      const data = await response.json();
+      console.log('Logout successful:', data.message);
+
+      // Call the logout function from AuthProvider and 
+      // redirect them to the home page
+      logout();
+      router.push('/');
+    } catch (err: any) {
+      console.error('Logout error:', err.message);
+    }
+  };
 
   return (
     <Paper m="1.5rem 0">
       <Group justify="space-between">
         <SmallLogo />
         <Group gap="lg">
-          <Button variant="transparent" c="#ECECEC" size="md" onClick={() => router.push('/login')}>
-            Log in
-          </Button>
-          <Button bg="#ECECEC" c="#242424" size="md" onClick={() => router.push('/register')}>
-            Sign up
-          </Button>
+          {isAuthenticated ? (
+            <>
+              <Button variant="transparent" c="#ECECEC" size="md" onClick={() => router.push('/')}>
+                Profile
+              </Button>
+              <Button bg="#ECECEC" c="#242424" size="md" onClick={handleLogout}>
+                Log out
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="transparent" c="#ECECEC" size="md" onClick={() => router.push('/login')}>
+                Log in
+              </Button>
+              <Button bg="#ECECEC" c="#242424" size="md" onClick={() => router.push('/register')}>
+                Sign up
+              </Button>
+            </>
+          )}
         </Group>
       </Group>
     </Paper>

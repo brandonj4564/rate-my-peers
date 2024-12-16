@@ -5,7 +5,7 @@ import '@mantine/core/styles.css';
 import React from 'react';
 import { ColorSchemeScript, MantineProvider } from '@mantine/core';
 import { theme } from '../../theme';
-
+import { AuthProvider } from '@/components/authContext';
 import '@mantine/carousel/styles.css';
 
 import { useForm } from '@mantine/form';
@@ -38,7 +38,9 @@ export default function RootLayout({ children }: { children: any }) {
       </head>
       <body>
         <MantineProvider theme={theme}>
-          <RegisterFormProvider form={form}>{children}</RegisterFormProvider>
+          <AuthProvider>
+            <RegisterFormProvider form={form}>{children}</RegisterFormProvider>
+          </AuthProvider>
         </MantineProvider>
       </body>
     </html>

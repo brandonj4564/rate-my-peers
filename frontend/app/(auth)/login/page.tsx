@@ -19,10 +19,12 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import LargeLogo from '@/components/LargeLogo';
+import { useAuth } from '@/components/authContext';
 
 const LoginForm = () => {
   const router = useRouter();
   const theme = useMantineTheme();
+  const { login } = useAuth(); // Access the login function from authContext
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -58,7 +60,8 @@ const LoginForm = () => {
       const data = await response.json();
       console.log('Login successful:', data);
 
-      // Redirect to the dashboard or another page on successful login
+      // Authenticate the user and redirect them to the home page
+      login();
       router.push('/');
     } catch (err: any) {
       setError(err.message);

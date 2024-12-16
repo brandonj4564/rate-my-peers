@@ -12,12 +12,14 @@ import traceback
 import uuid
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, supports_credentials=True, origins=["http://localhost:3000"])
 
 app.config["SECRET_KEY"] = "thisISaSecrETkeY"
 
 DATABASE = "peers.sqlite3"
 
+# LoginManager is needed for our application 
+# to be able to log in and out users
 login_manager = LoginManager()
 login_manager.init_app(app)
 
@@ -118,6 +120,7 @@ def login():
                 student["u_major"], student["u_email"], student["u_password"]
             )
             if student_obj.check_password(data.get("password")):
+                # sets a session cookie in the user's browser to remember them
                 login_user(student_obj)
                 return jsonify({"success": True, "message": "Login successful."}), 200
             else:
@@ -132,6 +135,7 @@ def login():
 @app.route("/logout")
 def logout():
     try:
+        # clears the session and removes the session cookie
         logout_user()
         return jsonify({"success": True, "message": "Logout successful."}), 200
 

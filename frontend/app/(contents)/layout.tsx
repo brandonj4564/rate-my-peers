@@ -4,6 +4,7 @@ import React from 'react';
 import { ColorSchemeScript, MantineProvider } from '@mantine/core';
 import Header from '@/components/Header';
 import { theme } from '../../theme';
+import { AuthProvider } from '@/components/authContext';
 
 import '@mantine/carousel/styles.css';
 
@@ -38,8 +39,10 @@ export default function RootLayout({ children }: { children: any }) {
           }}
         >
           <MantineProvider theme={theme}>
-            <Header />
-            {children}
+            <AuthProvider>
+              <Header />
+              {children}
+            </AuthProvider>
           </MantineProvider>
         </div>
       </body>
