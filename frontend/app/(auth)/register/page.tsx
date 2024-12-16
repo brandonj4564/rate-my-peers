@@ -20,13 +20,14 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import LargeLogo from '@/components/LargeLogo';
-import { useRegisterFormContext } from '../OnboardingContext';
+import { useRegisterFormContext, RegisterFormProvider } from '../OnboardingContext';
 
 const OnboardingForm = ({ setStep }: { setStep: (step: number) => void }) => {
   const registerForm = useRegisterFormContext();
+  const router = useRouter();
 
   const form = useForm({
-    mode: 'uncontrolled',
+    // mode: 'uncontrolled',
     initialValues: {
       firstName: '',
       lastName: '',
@@ -45,11 +46,45 @@ const OnboardingForm = ({ setStep }: { setStep: (step: number) => void }) => {
     },
   });
 
-  const handleCreateAccount = () => {
-    // Create the account in the backend and navigate back to the home page
-    console.log('account created');
-    console.log(registerForm.values); // use these values too
-  };
+  const handleCreateAccount = async () => {
+    try {
+      // Extract form data
+      const { firstName, lastName, school, major, year, degree } = form.values;
+      const name = `${firstName} ${lastName}`;
+      const email = registerForm.values.email;
+      const password = registerForm.values.password;
+  
+      const response = await fetch('http://127.0.0.1:5000/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name,
+          school,
+          major,
+          year,
+          degree,
+          email,
+          password,
+        }),
+      });
+  
+      const result = await response.json();
+  
+      if (response.ok) {
+        console.log('Account created:', result.message);
+        // Redirect to the home page
+        router.push('/');
+      } else {
+        console.error('Error:', result.message);
+        alert(`Error: ${result.message}`);
+      }
+    } catch (error) {
+      console.error('An error occurred:', error);
+      alert('An unexpected error occurred. Please try again.');
+    }
+  }; 
 
   return (
     <Stack gap="xl" w={500}>
@@ -58,7 +93,7 @@ const OnboardingForm = ({ setStep }: { setStep: (step: number) => void }) => {
         <Text>Back</Text>
       </Group>
       <Stack gap="sm">
-        <Title fw="400" fz="40" c="white">
+        <Title fw="400" fz="40" c="black">
           Create Account
         </Title>
         <Text>We just need a little bit more information from you</Text>
@@ -116,7 +151,7 @@ const OnboardingForm = ({ setStep }: { setStep: (step: number) => void }) => {
             <Select
               label="Year"
               placeholder="1st Year"
-              data={['1st Year', '2nd Year', '3rd Year', '4th Year', '5th Year', '6th Year']}
+              data={['1st Year', '2nd Year', '3rd Year', '4th Year', '5th Year', '5th+ Year']}
               variant="filled"
               size="md"
               labelProps={{ m: '0.5rem 0' }}
@@ -164,7 +199,7 @@ const RegisterForm = ({ setStep }: { setStep: (step: number) => void }) => {
         <Text>Back</Text>
       </Group>
       <Stack gap="sm">
-        <Title fw="400" fz="40" c="white">
+        <Title fw="400" fz="40" c="black">
           Sign Up
         </Title>
         <Text>
@@ -228,35 +263,53 @@ const RegisterForm = ({ setStep }: { setStep: (step: number) => void }) => {
 export default function RegisterPage() {
   const [step, setStep] = useState(0);
 
+  // Create the form instance
+  const form = useForm({
+    initialValues: {
+      email: '',
+      password: '',
+      confirmPassword: '',
+    },
+
+    validate: {
+      email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Invalid email'),
+      password: (value) => (value.length >= 6 ? null : 'Password must be at least 6 characters'),
+      confirmPassword: (value, values) =>
+        value === values.password ? null : 'Passwords do not match',
+    },
+  });
+
   return (
     <>
-      <Grid m="1rem">
-        <Grid.Col span={6}>
-          <Flex w="100%" align="center" justify="center" h="100%">
-            {step === 0 && <RegisterForm setStep={setStep} />}
-            {step === 1 && <OnboardingForm setStep={setStep} />}
-          </Flex>
-        </Grid.Col>
-        <Grid.Col span={6}>
-          <BackgroundImage src="/register-background.png" h="97vh" radius={20}>
+      <RegisterFormProvider form={form}>
+        <Grid m="1rem">
+          <Grid.Col span={6}>
             <Flex w="100%" align="center" justify="center" h="100%">
-              <Stack align="center">
-                <LargeLogo m="1rem 0" />
-                <Stack w="80%">
-                  <Title c="white" fw="500" fz={46} lts={1}>
-                    Join now—because judgment waits for no one.
-                  </Title>
-                  <Text fz={18}>
-                    Step into a world where connections are currency, and every opinion counts. Sign
-                    up today to claim your place in the ever-evolving tapestry of peer review.
-                  </Text>
-                </Stack>
-                <Paper h="10vh" />
-              </Stack>
+              {step === 0 && <RegisterForm setStep={setStep} />}
+              {step === 1 && <OnboardingForm setStep={setStep} />}
             </Flex>
-          </BackgroundImage>
-        </Grid.Col>
-      </Grid>
+          </Grid.Col>
+          <Grid.Col span={6}>
+            <BackgroundImage src="/register-background.png" h="97vh" radius={20}>
+              <Flex w="100%" align="center" justify="center" h="100%">
+                <Stack align="center">
+                  <LargeLogo m="1rem 0" />
+                  <Stack w="80%">
+                    <Title c="white" fw="500" fz={46} lts={1}>
+                      Join now—because judgment waits for no one.
+                    </Title>
+                    <Text fz={18}>
+                      Step into a world where connections are currency, and every opinion counts. Sign
+                      up today to claim your place in the ever-evolving tapestry of peer review.
+                    </Text>
+                  </Stack>
+                  <Paper h="10vh" />
+                </Stack>
+              </Flex>
+            </BackgroundImage>
+          </Grid.Col>
+        </Grid>
+      </RegisterFormProvider>
     </>
   );
 }

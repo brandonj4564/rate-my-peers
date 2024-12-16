@@ -23,6 +23,8 @@ import LargeLogo from '@/components/LargeLogo';
 const LoginForm = () => {
   const router = useRouter();
   const theme = useMantineTheme();
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const form = useForm({
     mode: 'uncontrolled',
@@ -34,6 +36,36 @@ const LoginForm = () => {
       password: (value) => (value.length > 0 ? null : 'Enter a password!'),
     },
   });
+
+  const handleSubmit = async (values: { email: string; password: string }) => {
+    setError('');
+    setLoading(true);
+
+    try {
+      const response = await fetch('http://127.0.0.1:5000/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(values),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Login failed');
+      }
+
+      const data = await response.json();
+      console.log('Login successful:', data);
+
+      // Redirect to the dashboard or another page on successful login
+      router.push('/');
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Stack gap="xl" w={500}>
@@ -47,7 +79,7 @@ const LoginForm = () => {
         </Title>
         <Text>Your former groupmates are waiting for your ratings enthusiastically</Text>
       </Stack>
-      <form onSubmit={form.onSubmit((values) => console.log(values))}>
+      <form onSubmit={form.onSubmit(handleSubmit)}>
         <Stack gap="md">
           <TextInput
             label="Email"
@@ -70,8 +102,9 @@ const LoginForm = () => {
             key={form.key('password')}
             {...form.getInputProps('password')}
           />
-          <Button size="md" m="1rem 0" type="submit" w="100%" mt="3rem">
-            Log in
+          {error && <Text color="red">{error}</Text>}
+          <Button size="md" m="1rem 0" type="submit" w="100%" mt="3rem" loading={loading}>
+            {loading ? 'Logging in...' : 'Log in'}
           </Button>
         </Stack>
       </form>

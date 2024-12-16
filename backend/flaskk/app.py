@@ -84,12 +84,11 @@ def register():
         # create a unique ID
         userID = str(uuid.uuid4())
 
-        # Needs a value for u_degree
         cursor.execute('''
             INSERT INTO user (u_userID, u_name, u_skoolName, u_yearAttend, u_major, u_degree, u_email, u_password)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         ''', (userID, data.get("name"), data.get("school"), data.get("year"),
-              data.get("major"), data.get("email"), password))
+              data.get("major"), data.get("degree"), data.get("email"), password))
         conn.commit()
         conn.close()
         return jsonify({"success": True, "message": "Registered successfully"}), 201
@@ -101,6 +100,10 @@ def register():
 @app.route("/login", methods=["POST"])
 def login():
     try:
+        # Ensure the Content-Type is 'application/json'
+        if not request.is_json:
+            return jsonify({"success": False, "message": "Content-Type must be application/json"}), 415
+
         data = request.get_json()
         if not data:
             return jsonify({"success": False, "message": "No data received."}), 400
