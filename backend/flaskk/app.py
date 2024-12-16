@@ -6,15 +6,17 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user
+import sqlite3
 from sqlite3 import Error
 import traceback
+import uuid
 
 app = Flask(__name__)
 CORS(app)
 
 app.config["SECRET_KEY"] = "thisISaSecrETkeY"
 
-DATABASE = "peers.sqlite"
+DATABASE = "peers.sqlite3"
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -52,12 +54,12 @@ class Student(UserMixin):
 @login_manager.user_loader
 def user_loader(user_id):
     conn = get_db_connection()
-    student = conn.execute("SELECT * FROM user WHERE id = ?", (user_id,)).fetchone()
+    student = conn.execute("SELECT * FROM user WHERE u_userID = ?", (user_id,)).fetchone()
     conn.close()
     if student:
         return Student(
-            student["id"], student["name"], student["school"], student["year"],
-            student["major"], student["email"], student["password"]
+            student["u_userID"], student["u_name"], student["u_skoolName"], student["u_yearAttend"],
+            student["u_major"], student["u_email"], student["u_password"]
         )
     return None
 
@@ -73,15 +75,20 @@ def register():
         cursor = conn.cursor()
 
         # Check if the email is already in use
-        email_in_use = cursor.execute("SELECT * FROM user WHERE email = ?", (data.get("email"),)).fetchone()
+        email_in_use = cursor.execute("SELECT * FROM user WHERE u_email = ?", (data.get("email"),)).fetchone()
         if email_in_use:
             return jsonify({"success": False, "message": "Email is already in use!"}), 400
 
         password = generate_password_hash(data.get("password"))
+
+        # create a unique ID
+        userID = str(uuid.uuid4())
+
+        # Needs a value for u_degree
         cursor.execute('''
-            INSERT INTO user (name, school, year, major, email, password)
-            VALUES (?, ?, ?, ?, ?, ?)
-        ''', (data.get("name"), data.get("school"), data.get("year"),
+            INSERT INTO user (u_userID, u_name, u_skoolName, u_yearAttend, u_major, u_degree, u_email, u_password)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        ''', (userID, data.get("name"), data.get("school"), data.get("year"),
               data.get("major"), data.get("email"), password))
         conn.commit()
         conn.close()
@@ -99,13 +106,13 @@ def login():
             return jsonify({"success": False, "message": "No data received."}), 400
 
         conn = get_db_connection()
-        student = conn.execute("SELECT * FROM user WHERE email = ?", (data.get("email"),)).fetchone()
+        student = conn.execute("SELECT * FROM user WHERE u_email = ?", (data.get("email"),)).fetchone()
         conn.close()
 
         if student:
             student_obj = Student(
-                student["id"], student["name"], student["school"], student["year"],
-                student["major"], student["email"], student["password"]
+                student["u_userID"], student["u_name"], student["u_skoolName"], student["u_yearAttend"],
+                student["u_major"], student["u_email"], student["u_password"]
             )
             if student_obj.check_password(data.get("password")):
                 login_user(student_obj)
@@ -133,7 +140,7 @@ def logout():
 def users():
     try:
         conn = get_db_connection()
-        users = conn.execute("SELECT id, name, school, year, major, email FROM user").fetchall()
+        users = conn.execute("SELECT u_userID, u_name, u_skoolName, u_yearAttend, u_major, u_email FROM user").fetchall()
         conn.close()
 
         user_list = [dict(user) for user in users]
