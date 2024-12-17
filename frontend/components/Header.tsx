@@ -1,9 +1,10 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Button, Group, Paper, useMantineColorScheme } from '@mantine/core';
+import { ActionIcon, Button, Group, Paper, rem, useMantineColorScheme } from '@mantine/core';
 import SmallLogo from './SmallLogo';
 import { useAuth } from './authContext';
+import { IconMoon } from '@tabler/icons-react';
 
 export default function Header() {
   const router = useRouter();
@@ -57,7 +58,9 @@ export default function Header() {
               <Button bg="#ECECEC" c="#242424" size="md" onClick={handleLogout}>
                 Log out
               </Button>
-              <Button onClick={() => setColorScheme('dark')}>Dark Mode</Button>
+              <ActionIcon size={42} variant="default" aria-label="Dark mode button" onClick={() => setColorScheme('dark')}>
+                <IconMoon style={{ width: rem(24), height: rem(24) }} />
+              </ActionIcon>
             </>
           ) : (
             <>
@@ -67,7 +70,9 @@ export default function Header() {
               <Button bg="#ECECEC" c="#242424" size="md" onClick={() => router.push('/register')}>
                 Sign up
               </Button>
-              <Button onClick={() => setColorScheme('dark')}>Dark Mode</Button>
+              <ActionIcon size={42} variant="default" aria-label="Dark mode button" onClick={() => setColorScheme('dark')}>
+                <IconMoon style={{ width: rem(24), height: rem(24) }} />
+              </ActionIcon>
             </>
           )}
         </Group>
