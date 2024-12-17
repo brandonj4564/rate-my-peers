@@ -1,13 +1,15 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Button, Group, Paper } from '@mantine/core';
+import { Button, Group, Paper, useMantineColorScheme } from '@mantine/core';
 import SmallLogo from './SmallLogo';
 import { useAuth } from './authContext';
 
 export default function Header() {
   const router = useRouter();
   const { isAuthenticated, logout } = useAuth();
+    const { setColorScheme } = useMantineColorScheme();
+
 
   const handleLogout = async () => {
     try {
@@ -55,6 +57,7 @@ export default function Header() {
               <Button bg="#ECECEC" c="#242424" size="md" onClick={handleLogout}>
                 Log out
               </Button>
+              <Button onClick={() => setColorScheme('dark')}>Dark Mode</Button>
             </>
           ) : (
             <>
@@ -64,6 +67,7 @@ export default function Header() {
               <Button bg="#ECECEC" c="#242424" size="md" onClick={() => router.push('/register')}>
                 Sign up
               </Button>
+              <Button onClick={() => setColorScheme('dark')}>Dark Mode</Button>
             </>
           )}
         </Group>
