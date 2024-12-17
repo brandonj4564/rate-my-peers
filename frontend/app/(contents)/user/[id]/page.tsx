@@ -463,7 +463,7 @@ export default function UserPage() {
           </RadarChart>}
         </Grid.Col>
       </Grid>
-      <WriteRating id={userId} numRatings={reviews.length} refreshData={getUserRatings} isAuth={isAuthenticated}/>
+      <WriteRating id={userId && typeof userId === 'string' ? userId: ''} numRatings={reviews.length} refreshData={getUserRatings} isAuth={isAuthenticated}/>
       {reviews ? reviews.map((item, index) => <ReviewCard key={index} username='Anonymous' comment={item.comment} ratings={
         {
           ...item,
