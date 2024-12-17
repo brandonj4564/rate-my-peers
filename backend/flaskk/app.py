@@ -302,5 +302,29 @@ def schools():
     finally:
         conn.close()
 
+@app.route('/students/<string:school_name>')
+def students(school_name):
+    try:
+        conn = sqlite3.connect("peers.sqlite3")
+        cursor = conn.cursor() 
+
+        query = "SELECT u_userID, u_name FROM user WHERE u_skoolName = ?"
+        # tuple requires a second argument, even if it just has one parameter
+        cursor.execute(query, (school_name,))
+
+        students = [{"u_userID": row[0], "u_name": row[1]} for row in cursor.fetchall()]
+
+        if not students:
+            return jsonify({"message": "No students found for this school"}), 404
+        
+        return jsonify(students)
+    
+    except sqlite3.Error as e:
+        return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
+    
+    finally:
+        if conn:
+            conn.close()
+
 if __name__ == "__main__":
     app.run(debug=True)

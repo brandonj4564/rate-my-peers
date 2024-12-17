@@ -6,33 +6,54 @@ import LargeLogo from './LargeLogo';
 export default function HomeSearch() {
   const [schools, setSchools] = useState<string[]>([]);
   const [selectedSchool, setSelectedSchool] = useState('');
+  const [students, setStudents] = useState<string[]>([]);
   const router = useRouter();
 
   useEffect(() => {
     // uncomment this later
 
-    // fetch('http://127.0.0.1:5000/schools')
-    //   .then((response) => response.json())
-    //   .then((data) => {
-    //     setSchools(data);
-    //   })
-    //   .catch((error) => console.error('Error fetching schools:', error));
+    fetch('http://127.0.0.1:5000/schools')
+      .then((response) => response.json())
+      .then((data) => {
+        setSchools(data);
+      })
+      .catch((error) => console.error('Error fetching schools:', error));
 
-    setSchools([
-      'UC Merced',
-      'UC Berkeley',
-      'Stanford University',
-      'MIT',
-      'Harvard University',
-      '',
-    ]);
+    // setSchools([
+    //   'UC Merced',
+    //   'UC Berkeley',
+    //   'Stanford University',
+    //   'MIT',
+    //   'Harvard University',
+    //   '',
+    // ]);
   }, []);
 
-  const handleSelectPeer = () => {
+  useEffect(() => {
+    if (selectedSchool.length > 0) {
+      fetch(`http://127.0.0.1:5000/students/${selectedSchool}`)
+        .then((response) => response.json())
+        .then((data) => {
+          // Transform the data into { label, value } objects for the Select component
+          setStudents(data.map((user: any) => ({ label: user.u_name, value: user.u_userID}))); 
+        })
+        .catch((error) => console.error('Error fetching users:', error));
+    } else {
+      setStudents([]); // Clear users when no school is selected
+    }
+  }, [selectedSchool]);
+
+  const handleSelectPeer = (id: string | null) => {
     // TODO
-    router.push('/user/1');
+    // router.push('/user/1');
+    if(id) {
+      router.push(`/user/${id}`);
+    }
   };
 
+  // By default, if we give Select in mantine a list of objects with label and value keys as the data (the object created in the fetch call),
+  // The dropdown text will be the labels and when we click one, the value returned will be the corresponding value
+  // (the id that gets passed to handleSelectPeer)
   return (
     <>
       <Paper>
@@ -79,7 +100,7 @@ export default function HomeSearch() {
                     searchable
                     nothingFoundMessage="User not found"
                     limit={5}
-                    data={['me', 'you']} // change this lol
+                    data={students} // change this lol
                     clearable
                     mt="3rem"
                     onChange={handleSelectPeer}
