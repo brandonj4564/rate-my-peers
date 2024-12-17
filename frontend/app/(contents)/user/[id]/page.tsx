@@ -447,7 +447,7 @@ export default function UserPage() {
               angle={60}
               domain={[0, 5]}
               tick={{ fill: 'white', fontSize: 12, fontWeight: '600'}}
-              ticks={[1, 2, 3, 4, 5]}
+              // ticks={[1, 2, 3, 4, 5]}
               stroke="#999"
             />
             <Radar
