@@ -61,7 +61,7 @@ const LoginForm = () => {
       console.log('Login successful:', data);
 
       // Authenticate the user and redirect them to the home page
-      login();
+      login(data.userId);
       router.push('/');
     } catch (err: any) {
       setError(err.message);

@@ -33,6 +33,15 @@ export default function Header() {
     }
   };
 
+  const handleProfileClick = () => {
+    if(isAuthenticated){
+      const token = localStorage.getItem('userToken');
+      if(token){
+        router.push(`/user/${token}`)
+      }
+    }
+  }
+
   return (
     <Paper m="1.5rem 0">
       <Group justify="space-between">
@@ -40,7 +49,7 @@ export default function Header() {
         <Group gap="lg">
           {isAuthenticated ? (
             <>
-              <Button variant="transparent" c="#ECECEC" size="md" onClick={() => router.push('/')}>
+              <Button variant="transparent" c="#ECECEC" size="md" onClick={handleProfileClick}>
                 Profile
               </Button>
               <Button bg="#ECECEC" c="#242424" size="md" onClick={handleLogout}>

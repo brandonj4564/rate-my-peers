@@ -93,7 +93,7 @@ def register():
               data.get("major"), data.get("degree"), data.get("email"), password))
         conn.commit()
         conn.close()
-        return jsonify({"success": True, "message": "Registered successfully"}), 201
+        return jsonify({"success": True, "message": "Registered successfully", "userId": userID}), 201
 
     except Exception as e:
         traceback.print_exc()
@@ -122,7 +122,7 @@ def login():
             if student_obj.check_password(data.get("password")):
                 # sets a session cookie in the user's browser to remember them
                 login_user(student_obj)
-                return jsonify({"success": True, "message": "Login successful."}), 200
+                return jsonify({"success": True, "message": "Login successful.", "userId": student["u_userID"]}), 200
             else:
                 return jsonify({"success": False, "message": "Incorrect password."}), 400
         else:

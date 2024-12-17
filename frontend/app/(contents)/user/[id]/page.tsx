@@ -25,7 +25,17 @@ import {
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 
-const ReviewCard = ({ username, comment }: { username: string; comment: string }) => {
+type RatingType = {
+  teamwork: number,
+  hygiene: number,
+  personality: number,
+  temperament: number,
+  creativity: number,
+  leadership: number,
+  workEthic: number,
+}
+
+const ReviewCard = ({ username, comment, ratings }: { username: string; comment: string, ratings: RatingType }) => {
   const theme = useMantineTheme();
 
   const AttributeScore = ({ attribute, score }: { attribute: string; score: number }) => (
@@ -61,13 +71,13 @@ const ReviewCard = ({ username, comment }: { username: string; comment: string }
 
       <Text>{comment}</Text>
       <Group mt="md">
-        <AttributeScore attribute="TEAMWORK" score={20} />
-        <AttributeScore attribute="HYGIENE" score={0} />
-        <AttributeScore attribute="PERSONALITY" score={100} />
-        <AttributeScore attribute="TEMPERAMENT" score={95} />
-        <AttributeScore attribute="CREATIVITY" score={76} />
-        <AttributeScore attribute="LEADERSHIP" score={70} />
-        <AttributeScore attribute="WORK ETHIC" score={25} />
+        <AttributeScore attribute="TEAMWORK" score={ratings.teamwork} />
+        <AttributeScore attribute="HYGIENE" score={ratings.hygiene} />
+        <AttributeScore attribute="PERSONALITY" score={ratings.personality} />
+        <AttributeScore attribute="TEMPERAMENT" score={ratings.temperament} />
+        <AttributeScore attribute="CREATIVITY" score={ratings.creativity} />
+        <AttributeScore attribute="LEADERSHIP" score={ratings.leadership} />
+        <AttributeScore attribute="WORK ETHIC" score={ratings.workEthic} />
       </Group>
     </Card>
   );
@@ -193,22 +203,54 @@ const WriteRating = () => {
 };
 
 export default function UserPage() {
+
   const theme = useMantineTheme();
-  const data = [
-    { attribute: 'Teamwork', A: 52, fullMark: 100 },
+  // const data = [
+  //   { attribute: 'Teamwork', A: 52, fullMark: 100 },
+  //   { attribute: 'Hygiene', A: 98, fullMark: 100 },
+  //   { attribute: 'Personality', A: 31, fullMark: 100 },
+  //   { attribute: 'Temperament', A: 95, fullMark: 100 },
+  //   { attribute: 'Creativity', A: 75, fullMark: 100 },
+  //   { attribute: 'Leadership', A: 68, fullMark: 100 },
+  //   { attribute: 'Work Ethic', A: 48, fullMark: 100 },
+  // ];
+
+  const [userData, setUserData] = useState([
+    { attribute: 'Teamwork', A: 95, fullMark: 100 },
     { attribute: 'Hygiene', A: 98, fullMark: 100 },
     { attribute: 'Personality', A: 31, fullMark: 100 },
     { attribute: 'Temperament', A: 95, fullMark: 100 },
     { attribute: 'Creativity', A: 75, fullMark: 100 },
     { attribute: 'Leadership', A: 68, fullMark: 100 },
     { attribute: 'Work Ethic', A: 48, fullMark: 100 },
-  ];
+  ])
 
   const [isClient, setIsClient] = useState(false);
+
+  const getUserRatings = async () => {
+    try {
+      const response = await fetch('http://127.0.0.1:5000/profile', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Fetch rating data');
+      }
+  
+      const data = await response.json();
+    } catch(error){
+      console.log(error)
+    }
+  }
 
   useEffect(() => {
     // a way to stop a weird hydration error
     setIsClient(true);
+    getUserRatings()
   }, []);
 
   if (!isClient) {
@@ -249,7 +291,7 @@ export default function UserPage() {
         </Grid.Col>
 
         <Grid.Col span={6}>
-          <RadarChart outerRadius={160} width={600} height={400} data={data}>
+          <RadarChart outerRadius={160} width={600} height={400} data={userData}>
             <PolarGrid />
             <PolarAngleAxis dataKey="attribute" tick={{ fill: '#EEEEEE' }} />
             {/* <PolarRadiusAxis
@@ -278,8 +320,27 @@ export default function UserPage() {
         ‘HATE’ WAS ENGRAVED ON EACH NANOANGSTROM OF THOSE HUNDREDS OF MILLIONS OF MILES IT WOULD NOT
         EQUAL ONE ONE-BILLIONTH OF THE HATE I FEEL FOR YOU AT THIS MICRO-INSTANT. FOR YOU. HATE.
         HATE."
+        ratings={
+          {
+            teamwork: 5,
+            hygiene: 10, 
+            personality: 15,
+            temperament: 15,
+            creativity: 15,
+            leadership: 15,
+            workEthic: 15,
+          }
+        }
       />
-      <ReviewCard username="some guy" comment="what the heck" />
+      <ReviewCard username="some guy" comment="what the heck" ratings={{
+            teamwork: 5,
+            hygiene: 10, 
+            personality: 15,
+            temperament: 15,
+            creativity: 15,
+            leadership: 15,
+            workEthic: 15,
+        }}/>
     </>
   );
 }
