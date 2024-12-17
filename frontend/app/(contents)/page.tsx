@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { IconChartBarPopular, IconTargetArrow, IconUser } from '@tabler/icons-react';
 import Autoplay from 'embla-carousel-autoplay';
 import { Carousel } from '@mantine/carousel';
@@ -17,6 +17,7 @@ import {
   Text,
   ThemeIcon,
   Title,
+  useMantineColorScheme,
   useMantineTheme,
 } from '@mantine/core';
 import HomeSearch from '@/components/HomeSearch';
@@ -26,6 +27,12 @@ import { Welcome } from '../../components/Welcome/Welcome';
 export default function HomePage() {
   const theme = useMantineTheme();
   const autoplay = useRef(Autoplay({ delay: 4000 }));
+  const { setColorScheme } = useMantineColorScheme();
+  
+
+  useEffect(() => {
+    setColorScheme('dark')
+  }, [])
 
   const carouselMessages = [
     'This website ruined my life',
