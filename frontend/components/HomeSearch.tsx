@@ -12,7 +12,7 @@ export default function HomeSearch() {
   useEffect(() => {
     // uncomment this later
 
-    fetch('http://127.0.0.1:5000/schools')
+    fetch('https://jesusruvalcaba.pythonanywhere.com/schools')
       .then((response) => response.json())
       .then((data) => {
         setSchools(data);
@@ -31,7 +31,7 @@ export default function HomeSearch() {
 
   useEffect(() => {
     if (selectedSchool.length > 0) {
-      fetch(`http://127.0.0.1:5000/students/${selectedSchool}`)
+      fetch(`https://jesusruvalcaba.pythonanywhere.com/students/${selectedSchool}`)
         .then((response) => response.json())
         .then((data) => {
           // Transform the data into { label, value } objects for the Select component

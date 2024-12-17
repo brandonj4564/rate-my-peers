@@ -21,10 +21,12 @@ import {
 import { useForm } from '@mantine/form';
 import LargeLogo from '@/components/LargeLogo';
 import { useRegisterFormContext, RegisterFormProvider } from '../OnboardingContext';
+import { useAuth } from '@/components/authContext';
 
 const OnboardingForm = ({ setStep }: { setStep: (step: number) => void }) => {
   const registerForm = useRegisterFormContext();
   const router = useRouter();
+  const { login } = useAuth(); // Access the login function from authContext
 
   const form = useForm({
     // mode: 'uncontrolled',
@@ -54,7 +56,7 @@ const OnboardingForm = ({ setStep }: { setStep: (step: number) => void }) => {
       const email = registerForm.values.email;
       const password = registerForm.values.password;
   
-      const response = await fetch('http://127.0.0.1:5000/register', {
+      const response = await fetch('https://jesusruvalcaba.pythonanywhere.com/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -75,6 +77,7 @@ const OnboardingForm = ({ setStep }: { setStep: (step: number) => void }) => {
       if (response.ok) {
         console.log('Account created:', result.message);
         // Redirect to the home page
+        login(result.userId);
         router.push('/');
       } else {
         console.error('Error:', result.message);
@@ -93,7 +96,7 @@ const OnboardingForm = ({ setStep }: { setStep: (step: number) => void }) => {
         <Text>Back</Text>
       </Group>
       <Stack gap="sm">
-        <Title fw="400" fz="40" c="black">
+        <Title fw="400" fz="40" c="white">
           Create Account
         </Title>
         <Text>We just need a little bit more information from you</Text>
@@ -199,7 +202,7 @@ const RegisterForm = ({ setStep }: { setStep: (step: number) => void }) => {
         <Text>Back</Text>
       </Group>
       <Stack gap="sm">
-        <Title fw="400" fz="40" c="black">
+        <Title fw="400" fz="40" c="white">
           Sign Up
         </Title>
         <Text>

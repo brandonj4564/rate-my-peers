@@ -44,7 +44,7 @@ const LoginForm = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('http://127.0.0.1:5000/login', {
+      const response = await fetch('https://jesusruvalcaba.pythonanywhere.com/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -61,7 +61,7 @@ const LoginForm = () => {
       console.log('Login successful:', data);
 
       // Authenticate the user and redirect them to the home page
-      login();
+      login(data.userId);
       router.push('/');
     } catch (err: any) {
       setError(err.message);

@@ -93,7 +93,7 @@ def register():
               data.get("major"), data.get("degree"), data.get("email"), password))
         conn.commit()
         conn.close()
-        return jsonify({"success": True, "message": "Registered successfully"}), 201
+        return jsonify({"success": True, "message": "Registered successfully", "userId": userID}), 201
 
     except Exception as e:
         traceback.print_exc()
@@ -122,7 +122,7 @@ def login():
             if student_obj.check_password(data.get("password")):
                 # sets a session cookie in the user's browser to remember them
                 login_user(student_obj)
-                return jsonify({"success": True, "message": "Login successful."}), 200
+                return jsonify({"success": True, "message": "Login successful.", "userId": student["u_userID"]}), 200
             else:
                 return jsonify({"success": False, "message": "Incorrect password."}), 400
         else:
@@ -157,57 +157,12 @@ def users():
         traceback.print_exc()
         return jsonify({"success": False, "message": f"An error occurred: {str(e)}"}), 500
     
-@app.route("/profile", methods=["GET", "POST"])  # need to add check to see if user is logged in before try to post<----------------------------------------
+@app.route("/profile", methods=["POST"])  # need to add check to see if user is logged in before try to post<----------------------------------------
 def profile():
     try: 
         if request.method == "POST":
-            required_fields = [  # we could remove this if the front end deals with the checking if all data has been entered
-                'r_ratedUserID', 'r_teamWork', 'r_hygeine', 'r_personality', 'r_temperament', 
-                'r_dependability', 'r_creativity', 'r_leadership', 'r_workEthic', 'r_comment'
-            ]
-        
-            for field in required_fields:
-                if field not in request.form:
-                    return jsonify({"success": False, "message": f"Missing required field: {field}"}), 400
-
-            rater_id = current_user.id  # NOT SURE IF THIS WILL GET USE ID <--------------------
-
-            rated_user = request.form['r_ratedUserID']  
-            team_work = request.form['r_teamWork']
-            hygiene = request.form['r_hygeine']
-            personality = request.form['r_personality']
-            temperament = request.form['r_temperament']
-            dependability = request.form['r_dependability']
-            creativity = request.form['r_creativity']
-            leadership = request.form['r_leadership']
-            work_ethic = request.form['r_workEthic']
-            comment = request.form['r_comment']
-
-            conn = get_db_connection()  # Use the consistent database connection method
-            if conn is None:
-                return jsonify({"success": False, "message": "Database connection failed."}), 500
-
-            cursor = conn.cursor()
-            # inserts review
-            query = '''
-                INSERT INTO rating_table (
-                    r_ratedUserID, r_raterUserID, r_teamWork, r_hygeine, r_personality, r_temperament,  
-                    r_dependability, r_creativity, r_leadership, r_workEthic, r_comment
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            '''
-        
-            cursor.execute(query, (
-                rated_user, rater_id, team_work, hygiene, personality, temperament, dependability, 
-                creativity, leadership, work_ethic, comment
-            ))
-
-            conn.commit()
-            closeConnection(conn)
-
-            return jsonify({"success": True, "message": "Review submitted successfully."}), 200
-        
-        elif request.method == "GET":
-            rated_user_id = request.args.get('r_ratedUserID')  # get the user id from front end
+            data = request.get_json()
+            rated_user_id = data.get("userId")  # get the user id from front end
 
             conn = get_db_connection()
             cursor = conn.cursor()
@@ -215,7 +170,7 @@ def profile():
             # gets stats profile stats
             query = '''
                 SELECT AVG(r_teamWork), AVG(r_hygeine), AVG(r_personality), AVG(r_temperament), AVG(r_dependability), AVG(r_creativity), AVG(r_leadership), AVG(r_workEthic)
-                FROM rating_table
+                FROM rating
                 WHERE r_ratedUserID = ?
             '''
             cursor.execute(query, (rated_user_id,))
@@ -225,7 +180,7 @@ def profile():
             # -- not extracting rater id as we prob don't want to display this (anonymous)
             query_post = '''
                 SELECT r_teamWork, r_hygeine, r_personality, r_temperament, r_dependability, r_creativity, r_leadership, r_workEthic,  r_comment
-                FROM rating_table
+                FROM rating
                 WHERE r_ratedUserID = ?
             '''
             cursor.execute(query_post, (rated_user_id,))
@@ -234,7 +189,7 @@ def profile():
 
             profile_query = '''
                 SELECT u_name, u_skoolName, u_yearAttend, u_major, u_degree 
-                FROM user_table
+                FROM user
                 WHERE u_userID = ?
             '''
             cursor.execute(profile_query, (rated_user_id,))
@@ -282,6 +237,56 @@ def profile():
         traceback.print_exc()  
         return jsonify({"success": False, "message": f"An error occurred: {str(e)}"}), 500
 
+@app.route("/post-rating", methods=["POST"])  # need to add check to see if user is logged in before try to post<----------------------------------------
+def postRating():
+    try: 
+        if request.method == "POST":
+            data = request.get_json()
+
+            # rater_id = current_user.id  # NOT SURE IF THIS WILL GET USE ID <--------------------
+
+            rated_user = data.get("r_ratedUserID") 
+            rater_user = data.get("r_raterUserID")
+            team_work = data.get("r_teamWork")
+            hygiene = data.get("r_hygeine")
+            personality = data.get("r_personality")
+            temperament = data.get("r_temperament")
+            dependability = data.get("r_dependability")
+            creativity = data.get("r_creativity")
+            leadership = data.get("r_leadership")
+            work_ethic = data.get("r_workEthic")
+            comment = data.get("r_comment")
+
+            conn = get_db_connection()  # Use the consistent database connection method
+            if conn is None:
+                return jsonify({"success": False, "message": "Database connection failed."}), 500
+
+            cursor = conn.cursor()
+            # inserts review
+
+            ratingID = str(uuid.uuid4())
+
+            query = '''
+                INSERT INTO rating (
+                    r_ratingID, r_ratedUserID, r_raterUserID, r_teamWork, r_hygeine, r_personality, r_temperament,  
+                    r_dependability, r_creativity, r_leadership, r_workEthic, r_comment
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            '''
+        
+            cursor.execute(query, (
+                ratingID, rated_user, rater_user, team_work, hygiene, personality, temperament, dependability, 
+                creativity, leadership, work_ethic, comment
+            ))
+
+            conn.commit()
+            closeConnection(conn)
+
+            return jsonify({"success": True, "message": "Review submitted successfully."}), 200
+        
+    except Exception as e:
+        traceback.print_exc()  
+        return jsonify({"success": False, "message": f"An error occurred: {str(e)}"}), 500
+    
 @app.route("/schools", methods=["GET"])
 def schools():
     # Connect to the database
