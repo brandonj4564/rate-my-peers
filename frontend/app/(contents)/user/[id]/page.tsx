@@ -24,12 +24,15 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
+import { ColorSchemeToggle } from '@/components/ColorSchemeToggle/ColorSchemeToggle';
+import { useParams } from 'next/navigation'
 
 type RatingType = {
   teamwork: number,
   hygiene: number,
   personality: number,
   temperament: number,
+  dependability: number,
   creativity: number,
   leadership: number,
   workEthic: number,
@@ -75,6 +78,7 @@ const ReviewCard = ({ username, comment, ratings }: { username: string; comment:
         <AttributeScore attribute="HYGIENE" score={ratings.hygiene} />
         <AttributeScore attribute="PERSONALITY" score={ratings.personality} />
         <AttributeScore attribute="TEMPERAMENT" score={ratings.temperament} />
+        <AttributeScore attribute="DEPENDABILITY" score={ratings.dependability} />
         <AttributeScore attribute="CREATIVITY" score={ratings.creativity} />
         <AttributeScore attribute="LEADERSHIP" score={ratings.leadership} />
         <AttributeScore attribute="WORK ETHIC" score={ratings.workEthic} />
@@ -203,6 +207,10 @@ const WriteRating = () => {
 };
 
 export default function UserPage() {
+  const params = useParams()
+  const userId = params?.id || null
+
+  const [isLoading, setIsLoading] = useState(true)
 
   const theme = useMantineTheme();
   // const data = [
@@ -216,24 +224,36 @@ export default function UserPage() {
   // ];
 
   const [userData, setUserData] = useState([
-    { attribute: 'Teamwork', A: 95, fullMark: 100 },
-    { attribute: 'Hygiene', A: 98, fullMark: 100 },
-    { attribute: 'Personality', A: 31, fullMark: 100 },
-    { attribute: 'Temperament', A: 95, fullMark: 100 },
-    { attribute: 'Creativity', A: 75, fullMark: 100 },
-    { attribute: 'Leadership', A: 68, fullMark: 100 },
-    { attribute: 'Work Ethic', A: 48, fullMark: 100 },
+    { attribute: 'Teamwork', A: 0, fullMark: 100 },
+    { attribute: 'Hygiene', A: 0, fullMark: 100 },
+    { attribute: 'Personality', A: 0, fullMark: 100 },
+    { attribute: 'Temperament', A: 0, fullMark: 100 },
+    { attribute: 'Dependability', A: 0, fullMark: 100 },
+    { attribute: 'Creativity', A: 0, fullMark: 100 },
+    { attribute: 'Leadership', A: 0, fullMark: 100 },
+    { attribute: 'Work Ethic', A: 0, fullMark: 100 },
   ])
+
+  const [profileData, setProfileData] = useState({
+    name: '',
+    school: '',
+    yearAttend: '',
+    major: '',
+    degree: '',
+  })
 
   const [isClient, setIsClient] = useState(false);
 
   const getUserRatings = async () => {
     try {
       const response = await fetch('http://127.0.0.1:5000/profile', {
-        method: 'GET',
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+          userId
+        }),
       });
   
       if (!response.ok) {
@@ -242,6 +262,27 @@ export default function UserPage() {
       }
   
       const data = await response.json();
+
+      const profilePortion = data.profile_info
+      setProfileData({
+        name: profilePortion.u_name,
+        school: profilePortion.u_skoolName,
+        yearAttend: profilePortion.u_yearAttend,
+        major: profilePortion.u_major,
+        degree: profilePortion.u_degree
+      })
+
+      const userStats = data.user_stats
+      setUserData([
+        { attribute: 'Teamwork', A: userStats.team_work, fullMark: 100 },
+        { attribute: 'Hygiene', A: userStats.hygiene, fullMark: 100 },
+        { attribute: 'Personality', A: userStats.personality, fullMark: 100 },
+        { attribute: 'Temperament', A: userStats.temperament, fullMark: 100 },
+        { attribute: 'Dependability', A: userStats.dependability, fullMark: 100 },
+        { attribute: 'Creativity', A: userStats.creativity, fullMark: 100 },
+        { attribute: 'Leadership', A: userStats.leadership, fullMark: 100 },
+        { attribute: 'Work Ethic', A: userStats.work_ethic, fullMark: 100 },
+      ])
     } catch(error){
       console.log(error)
     }
@@ -259,6 +300,7 @@ export default function UserPage() {
 
   return (
     <>
+    {/* <ColorSchemeToggle/> */}
       <Grid m="3rem 0">
         <Grid.Col span={6}>
           <Stack>
@@ -281,11 +323,11 @@ export default function UserPage() {
               </Stack>
             </Group>
             <Title fz={32} fw="600" c="white">
-              Ben Hinklefinkleberg
+              {profileData.name}
             </Title>
             <Stack gap="xs">
-              <Text>University of California, Los Angeles</Text>
-              <Text>Computer Science & Engineering, 4th Year, B.S.</Text>
+              <Text>{profileData.school}</Text>
+              <Text>{profileData.major}, {profileData.yearAttend}, {profileData.degree}</Text>
             </Stack>
           </Stack>
         </Grid.Col>
@@ -326,6 +368,7 @@ export default function UserPage() {
             hygiene: 10, 
             personality: 15,
             temperament: 15,
+            dependability: 15,
             creativity: 15,
             leadership: 15,
             workEthic: 15,
@@ -337,6 +380,7 @@ export default function UserPage() {
             hygiene: 10, 
             personality: 15,
             temperament: 15,
+            dependability: 15,
             creativity: 15,
             leadership: 15,
             workEthic: 15,
