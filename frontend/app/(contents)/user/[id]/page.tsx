@@ -124,7 +124,7 @@ const WriteRating = ({id, numRatings, refreshData, isAuth}: {id: string, numRati
       const raterId = localStorage.getItem("userToken")
 
   
-      const response = await fetch('http://127.0.0.1:5000/post-rating', {
+      const response = await fetch('https://jesusruvalcaba.pythonanywhere.com/post-rating', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -334,7 +334,7 @@ export default function UserPage() {
   const getUserRatings = async () => {
     try {
       setIsLoading(true)
-      const response = await fetch('http://127.0.0.1:5000/profile', {
+      const response = await fetch('https://jesusruvalcaba.pythonanywhere.com/profile', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

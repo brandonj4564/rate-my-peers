@@ -56,7 +56,7 @@ const OnboardingForm = ({ setStep }: { setStep: (step: number) => void }) => {
       const email = registerForm.values.email;
       const password = registerForm.values.password;
   
-      const response = await fetch('http://127.0.0.1:5000/register', {
+      const response = await fetch('https://jesusruvalcaba.pythonanywhere.com/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
