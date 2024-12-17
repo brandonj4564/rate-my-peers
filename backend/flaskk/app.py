@@ -237,31 +237,25 @@ def profile():
         traceback.print_exc()  
         return jsonify({"success": False, "message": f"An error occurred: {str(e)}"}), 500
 
-@app.route("/post-rating", methods=["GET", "POST"])  # need to add check to see if user is logged in before try to post<----------------------------------------
+@app.route("/post-rating", methods=["POST"])  # need to add check to see if user is logged in before try to post<----------------------------------------
 def postRating():
     try: 
         if request.method == "POST":
-            required_fields = [  # we could remove this if the front end deals with the checking if all data has been entered
-                'r_ratedUserID', 'r_teamWork', 'r_hygeine', 'r_personality', 'r_temperament', 
-                'r_dependability', 'r_creativity', 'r_leadership', 'r_workEthic', 'r_comment'
-            ]
-        
-            for field in required_fields:
-                if field not in request.form:
-                    return jsonify({"success": False, "message": f"Missing required field: {field}"}), 400
+            data = request.get_json()
 
-            rater_id = current_user.id  # NOT SURE IF THIS WILL GET USE ID <--------------------
+            # rater_id = current_user.id  # NOT SURE IF THIS WILL GET USE ID <--------------------
 
-            rated_user = request.form['r_ratedUserID']  
-            team_work = request.form['r_teamWork']
-            hygiene = request.form['r_hygeine']
-            personality = request.form['r_personality']
-            temperament = request.form['r_temperament']
-            dependability = request.form['r_dependability']
-            creativity = request.form['r_creativity']
-            leadership = request.form['r_leadership']
-            work_ethic = request.form['r_workEthic']
-            comment = request.form['r_comment']
+            rated_user = data.get("r_ratedUserID") 
+            rater_user = data.get("r_raterUserID")
+            team_work = data.get("r_teamWork")
+            hygiene = data.get("r_hygeine")
+            personality = data.get("r_personality")
+            temperament = data.get("r_temperament")
+            dependability = data.get("r_dependability")
+            creativity = data.get("r_creativity")
+            leadership = data.get("r_leadership")
+            work_ethic = data.get("r_workEthic")
+            comment = data.get("r_comment")
 
             conn = get_db_connection()  # Use the consistent database connection method
             if conn is None:
@@ -269,15 +263,18 @@ def postRating():
 
             cursor = conn.cursor()
             # inserts review
+
+            ratingID = str(uuid.uuid4())
+
             query = '''
                 INSERT INTO rating (
-                    r_ratedUserID, r_raterUserID, r_teamWork, r_hygeine, r_personality, r_temperament,  
+                    r_ratingID, r_ratedUserID, r_raterUserID, r_teamWork, r_hygeine, r_personality, r_temperament,  
                     r_dependability, r_creativity, r_leadership, r_workEthic, r_comment
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             '''
         
             cursor.execute(query, (
-                rated_user, rater_id, team_work, hygiene, personality, temperament, dependability, 
+                ratingID, rated_user, rater_user, team_work, hygiene, personality, temperament, dependability, 
                 creativity, leadership, work_ethic, comment
             ))
 
